@@ -16,6 +16,7 @@ $language = array(
     'anonymous' => 'Anonymous',
     'processing' => 'Processing...',
     'invalid_amount' => 'Invalid donation amount',
+    'donate_error' => 'Please configure the module in StaffCP -> Donate -> Settings',
     'currency' => 'Currency',
     'latest_donations' => 'Latest Donations',
     'thanks_for_donation' => 'Thanks to {x} for your donation of {y}'
