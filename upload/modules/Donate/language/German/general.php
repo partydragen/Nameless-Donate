@@ -16,6 +16,7 @@ $language = array(
     'anonymous' => 'Anonymous',
     'processing' => 'Ausführen...',
     'invalid_amount' => 'Ungültige Spendenmenge',
+    'donate_error' => 'Bitte konfiguriere das Modul unter StaffCP -> Donate -> Settings',
     'currency' => 'Währung',
     'latest_donations' => 'Letzte Spenden',
     'thanks_for_donation' => 'Danke an {x} für deine Spende von {y}'
