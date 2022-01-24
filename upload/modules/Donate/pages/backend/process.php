@@ -8,7 +8,7 @@
 
 $paypal_email = $queries->getWhere('donate_settings', array('name', '=', 'paypal_email'));
 if(!count($paypal_email) || empty($paypal_email[0]->value)) {
-    Session::flash('donate_error', 'Please configure the module in StaffCP -> Donate -> Settings');
+    Session::flash('donate_error', $donate_language->get('general', 'donate_error'));
     Redirect::to(URL::build('/donate/'));
     die();
 }
