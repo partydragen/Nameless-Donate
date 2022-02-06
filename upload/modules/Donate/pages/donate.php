@@ -2,7 +2,7 @@
 /*
  *	Made by Partydragen
  *  https://partydragen.com/
- *  NamelessMC version 2.0.0-pr11
+ *  NamelessMC version 2.0.0-pr12
  *
  *  License: MIT
  *
@@ -31,7 +31,7 @@ foreach($latest_donations as $donation) {
     if($donation->user_id != 0 && $target_user->data()) {
         $latest_donations_list[] = array(
             'username' => $target_user->getDisplayname(),
-            'avatar_url' => $target_user->getAvatar(null, 128),
+            'avatar_url' => $target_user->getAvatar(),
             'profile_url' => $target_user->getProfileURL(),
             'amount' => Output::getClean($donation->amount),
             'currency' => Output::getClean($donation->currency),
