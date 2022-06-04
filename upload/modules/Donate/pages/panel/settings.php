@@ -7,7 +7,7 @@
  */
 
 // Can the user view the panel?
-if(!$user->handlePanelPageLoad('staffcp.donate.settings')) {
+if (!$user->handlePanelPageLoad('staffcp.donate.settings')) {
     require_once(ROOT_PATH . '/403.php');
     die();
 }
@@ -17,44 +17,44 @@ define('PARENT_PAGE', 'donate_settings');
 define('PANEL_PAGE', 'donate_settings');
 $page_title = $language->get('admin', 'general_settings');
 require_once(ROOT_PATH . '/core/templates/backend_init.php');
+$configuration = new Configuration('donate');
 
 // Deal with input
 if (Input::exists()) {
     if (Token::check(Input::get('token'))) {
-		$validate = new Validate();
-		$validation = $validate->check($_POST, array(
-			'paypal_email' => array(
-				'max' => 128
-			),
-            'icon' => array(
-				'max' => 64
-			)
-		));
-						
-		if($validation->passed()){
+		$validation = Validate::check($_POST, [
+			'paypal_email' => [
+				Validate::MAX => 128
+			],
+            'icon' => [
+				Validate::MAX => 64
+			]
+		]);
+
+		if ($validation->passed()) {
 			// Update paypal email
-			$paypal_email_id = $queries->getWhere('donate_settings', array('name', '=', 'paypal_email'));
-            if(count($paypal_email_id)) {
-                $queries->update('donate_settings', $paypal_email_id[0]->id, array(
-                    'value' => Output::getClean(Input::get('paypal_email')),
-                ));
+			$paypal_email_id = DB::getInstance()->get('donate_settings', ['name', '=', 'paypal_email'])->results();
+            if (count($paypal_email_id)) {
+                DB::getInstance()->update('donate_settings', $paypal_email_id[0]->id, [
+                    'value' => Input::get('paypal_email'),
+                ]);
             } else {
-                $queries->create('donate_settings', array(
+                DB::getInstance()->insert('donate_settings', [
                     'name' => 'paypal_email',
-                    'value' => Output::getClean(Input::get('paypal_email')),
-                ));
+                    'value' => Input::get('paypal_email'),
+                ]);
             }
-            
-            $configuration->set('donate', 'currency', Output::getClean(Input::get('currency')));
-            $configuration->set('donate', 'min_amount', Output::getClean(Input::get('min_amount')));
-            $configuration->set('donate', 'reward_group', Output::getClean(Input::get('reward_group')));
-            
-            $configuration->set('donate', 'content', Output::getClean(Input::get('content')));
-            $configuration->set('donate', 'success_content', Output::getClean(Input::get('success_content')));
-            
+
+            $configuration->set('currency', Input::get('currency'));
+            $configuration->set('min_amount', Input::get('min_amount'));
+            $configuration->set('reward_group', Input::get('reward_group'));
+
+            $configuration->set('content', Input::get('content'));
+            $configuration->set('success_content', Input::get('success_content'));
+
 			// Get link location
-			if(isset($_POST['link_location'])){
-				switch($_POST['link_location']){
+			if (isset($_POST['link_location'])) {
+				switch ($_POST['link_location']) {
 					case 1:
 					case 2:
 					case 3:
@@ -66,74 +66,75 @@ if (Input::exists()) {
 				}
 			} else
 				$location = 1;
-											
+
 			// Update Link location cache
 			$cache->setCache('nav_location');
 			$cache->store('donate_location', $location);
-            
+
 			// Update Icon cache
 			$cache->setCache('navbar_icons');
 			$cache->store('donate_icon', Input::get('icon'));
-            
+
 			Session::flash('donate_success', $donate_language->get('admin', 'settings_updated_successfully'));
 			Redirect::to(URL::build('/panel/donate/settings/'));
-			die();
+        } else {
+            // Validation errors
+            $errors = $validation->errors();
         }
-        
     } else {
         // Invalid token
-        $errors = array($language->get('general', 'invalid_token'));
+        $errors[] = $language->get('general', 'invalid_token');
     }
 }
 
-$currency_list = array('USD', 'EUR', 'GBP', 'NOK', 'SEK', 'PLN', 'DKK', 'CAD', 'BRL', 'AUD');
+$currency_list = ['USD', 'EUR', 'GBP', 'NOK', 'SEK', 'PLN', 'DKK', 'CAD', 'BRL', 'AUD'];
 
 // Load modules + template
-Module::loadPage($user, $pages, $cache, $smarty, array($navigation, $cc_nav, $mod_nav), $widgets);
+Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
 
 // Retrieve PayPal Email
-$paypal_email = $queries->getWhere('donate_settings', array('name', '=', 'paypal_email'));
+$paypal_email = DB::getInstance()->get('donate_settings', ['name', '=', 'paypal_email'])->results();
 $paypal_email = $paypal_email[0]->value;
 
-$currency = $configuration->get('donate', 'currency');
-$min_amount = $configuration->get('donate', 'min_amount');
-$reward_group = $configuration->get('donate', 'reward_group');
-$content = $configuration->get('donate', 'content');
-$success_content = $configuration->get('donate', 'success_content');
+$currency = $configuration->get('currency');
+$min_amount = $configuration->get('min_amount');
+$reward_group = $configuration->get('reward_group');
+$content = $configuration->get('content');
+$success_content = $configuration->get('success_content');
 
 // Retrieve Link Location from cache
 $cache->setCache('nav_location');
 $link_location = $cache->retrieve('donate_location');
-				
+
 // Retrieve Icon from cache
 $cache->setCache('navbar_icons');
 $icon = $cache->retrieve('donate_icon');
 
-$group_list = array();
-$groups = $queries->getWhere('groups', array('staff', '=', 0));
-foreach($groups as $group) {
-    $group_list[] = array(
+$group_list = [];
+$groups = DB::getInstance()->get('groups', ['staff', '=', 0])->results();
+foreach ($groups as $group) {
+    $group_list[] = [
         'id' => Output::getClean($group->id),
         'name' => Output::getClean($group->name)
-    );
+    ];
 }
 
-if(Session::exists('donate_success'))
+if (Session::exists('donate_success'))
 	$success = Session::flash('donate_success');
 
-if(isset($success))
-	$smarty->assign(array(
+if (isset($success))
+	$smarty->assign([
 		'SUCCESS' => $success,
 		'SUCCESS_TITLE' => $language->get('general', 'success')
-	));
+	]);
 
-if(isset($errors) && count($errors))
-	$smarty->assign(array(
+if (isset($errors) && count($errors))
+	$smarty->assign([
 		'ERRORS' => $errors,
 		'ERRORS_TITLE' => $language->get('general', 'error')
-	));
+	]);
 
-$smarty->assign(array(
+$smarty->assign([
 	'PARENT_PAGE' => PARENT_PAGE,
 	'DASHBOARD' => $language->get('admin', 'dashboard'),
 	'DONATE' => $donate_language->get('general', 'donate'),
@@ -165,22 +166,14 @@ $smarty->assign(array(
 	'ICON_EXAMPLE' => htmlspecialchars($donate_language->get('admin', 'icon_example')),
 	'ICON_VALUE' => Output::getClean(htmlspecialchars_decode($icon)),
     'NONE' => $language->get('general', 'none'),
-));
+]);
 
-$template->addCSSFiles(array(
-    (defined('CONFIG_PATH') ? CONFIG_PATH : '') . '/core/assets/plugins/ckeditor/plugins/spoiler/css/spoiler.css' => array()
-));
+$template->assets()->include([
+    AssetTree::TINYMCE,
+]);
 
-$template->addJSFiles(array(
-    (defined('CONFIG_PATH') ? CONFIG_PATH : '') . '/core/assets/plugins/ckeditor/plugins/spoiler/js/spoiler.js' => array(),
-    (defined('CONFIG_PATH') ? CONFIG_PATH : '') . '/core/assets/plugins/ckeditor/ckeditor.js' => array()
-));
-
-$template->addJSScript(Input::createEditor('inputContent', true));
-$template->addJSScript(Input::createEditor('inputSuccessContent', true));
-
-$page_load = microtime(true) - $start;
-define('PAGE_LOAD_TIME', str_replace('{x}', round($page_load, 3), $language->get('general', 'page_loaded_in')));
+$template->addJSScript(Input::createTinyEditor($language, 'inputContent'));
+$template->addJSScript(Input::createTinyEditor($language, 'inputSuccessContent'));
 
 $template->onPageLoad();
 

@@ -5,12 +5,12 @@
  *
  *  Process donation
  */
+$configuration = new Configuration('donate');
 
-$paypal_email = $queries->getWhere('donate_settings', array('name', '=', 'paypal_email'));
-if(!count($paypal_email) || empty($paypal_email[0]->value)) {
+$paypal_email = DB::getInstance()->get('donate_settings', ['name', '=', 'paypal_email'])->results();
+if (!count($paypal_email) || empty($paypal_email[0]->value)) {
     Session::flash('donate_error', $donate_language->get('general', 'donate_error'));
     Redirect::to(URL::build('/donate/'));
-    die();
 }
 $paypal_email = $paypal_email[0]->value;
 
@@ -21,14 +21,13 @@ if ($_POST['anonymous'] == 0 && $user->isLoggedIn()) {
 	$user_id = 0;
 }
 
-$currency = $configuration->get('donate', 'currency');
-$min_amount = $configuration->get('donate', 'min_amount');
+$currency = $configuration->get('currency');
+$min_amount = $configuration->get('min_amount');
 
 // Get amount
-if(!isset($_POST['amount']) || !is_numeric($_POST['amount']) || $_POST['amount'] < $min_amount) {
+if (!isset($_POST['amount']) || !is_numeric($_POST['amount']) || $_POST['amount'] < $min_amount) {
     Session::flash('donate_error', $donate_language->get('general', 'invalid_amount'));
     Redirect::to(URL::build('/donate/'));
-    die();
 }
 $amount = $_POST['amount'];
 ?>

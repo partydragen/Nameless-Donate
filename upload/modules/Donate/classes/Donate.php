@@ -14,26 +14,17 @@ class Donate {
      *  Check for Module updates
      *  Returns JSON object with information about any updates
      */
-    public static function updateCheck($current_version = null) {
-        $queries = new Queries();
+    public static function updateCheck() {
+        $current_version = Util::getSetting('nameless_version');
+        $uid = Util::getSetting('unique_id');
 
-        // Check for updates
-        if (!$current_version) {
-            $current_version = $queries->getWhere('settings', array('name', '=', 'nameless_version'));
-            $current_version = $current_version[0]->value;
-        }
-
-        $uid = $queries->getWhere('settings', array('name', '=', 'unique_id'));
-        $uid = $uid[0]->value;
-        
         $enabled_modules = Module::getModules();
-        foreach($enabled_modules as $enabled_item){
-            if($enabled_item->getName() == 'Donate'){
+        foreach ($enabled_modules as $enabled_item) {
+            if ($enabled_item->getName() == 'Donate') {
                 $module = $enabled_item;
                 break;
             }
         }
-        
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -47,7 +38,7 @@ class Donate {
         if (isset($info->message)) {
             die($info->message);
         }
-        
+
         return $update_check;
     }
 }
