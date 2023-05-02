@@ -22,8 +22,8 @@ class Donate_Module extends Module {
 
         $name = 'Donate';
         $author = '<a href="https://partydragen.com" target="_blank" rel="nofollow noopener">Partydragen</a>';
-        $module_version = '1.0.1';
-        $nameless_version = '2.0.0-pr13';
+        $module_version = '1.0.2';
+        $nameless_version = '2.1.0';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
 
@@ -178,8 +178,8 @@ class Donate_Module extends Module {
                         'NEW_UPDATE_URGENT' => (isset($update_check->urgent) && $update_check->urgent == 'true'),
                         'CURRENT_VERSION' => $this->_donate_language->get('admin', 'current_version_x', ['version' => Output::getClean($this->getVersion())]),
                         'NEW_VERSION' => $this->_donate_language->get('admin', 'new_version_x', ['new_version' => Output::getClean($update_check->new_version)]),
-                        'UPDATE' => $this->_donate_language->get('admin', 'view_resource'),
-                        'UPDATE_LINK' => Output::getClean($update_check->link)
+                        'NAMELESS_UPDATE' => $this->_donate_language->get('admin', 'view_resource'),
+                        'NAMELESS_UPDATE_LINK' => Output::getClean($update_check->link)
                     ]);
                 }
             }
@@ -200,60 +200,33 @@ class Donate_Module extends Module {
             }
         }
 
-        if (!$this->_db->showTables('donate_settings')) {
-            try {
-                $this->_db->createTable('donate_settings', '`id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(64) NOT NULL, `value` text, PRIMARY KEY (`id`)');
-
-                $this->_db->insert('donate_settings', [
-                    'name' => 'paypal_email',
-                    'value' => ''
-                ]);
-
-                $this->_db->insert('donate_settings', [
-                    'name' => 'currency',
-                    'value' => 'USD'
-                ]);
-
-                $this->_db->insert('donate_settings', [
-                    'name' => 'min_amount',
-                    'value' => '5.00'
-                ]);
-
-                $this->_db->insert('donate_settings', [
-                    'name' => 'content',
-                    'value' => 'Huge thanks to everyone who wish to donate'
-                ]);
-
-                $this->_db->insert('donate_settings', [
-                    'name' => 'success_content',
-                    'value' => 'We appreciate and thank you for your donation. It might take a while before it shows up in the donation list'
-                ]);
-
-                $this->_db->insert('donate_settings', [
-                    'name' => 'reward_group',
-                    'value' => '0'
-                ]);
-            } catch (Exception $e) {
-                // Error
-            }
-        }
-
-        try {
-            // Update main admin group permissions
-            $group = $this->_db->get('groups', ['id', '=', 2])->first();
-
-            $group_permissions = json_decode($group->permissions, TRUE);
-            $group_permissions['staffcp.donate.settings'] = 1;
-            $group_permissions['staffcp.donate.payments'] = 1;
-
-            $group_permissions = json_encode($group_permissions);
-            $this->_db->update('groups', 2, ['permissions' => $group_permissions]);
-        } catch (Exception $e) {
-            // Error
+        if (!$this->_db->get('settings', ['module', '=', 'Donate'])->count()) {
+            Util::setSetting('paypal_email', '', 'Donate');
+            Util::setSetting('currency', 'USD', 'Donate');
+            Util::setSetting('min_amount', '5.00', 'Donate');
+            Util::setSetting('content', 'Huge thanks to everyone who wish to donate', 'Donate');
+            Util::setSetting('success_content', 'We appreciate and thank you for your donation. It might take a while before it shows up in the donation list', 'Donate');
+            Util::setSetting('reward_group', '0', 'Donate');
         }
     }
 
     private function initialiseUpdate($old_version) {
         $old_version = str_replace([".", "-"], "", $old_version);
+
+        if ($old_version < 102) {
+            try {
+                if ($this->_db->showTables('donate_settings')) {
+                    // Convert donate settings to NamelessMC settings system
+                    $settings = $this->_db->query('SELECT * FROM nl2_donate_settings')->results();
+                    foreach ($settings as $setting) {
+                        Util::setSetting($setting->name, $setting->value, 'Donate');
+                    }
+
+                    $this->_db->query('DROP TABLE nl2_donate_settings');
+                }
+            } catch (Exception $e) {
+                echo $e->getMessage() . '<br />';
+            }
+        }
     }
 }

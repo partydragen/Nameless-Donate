@@ -5,8 +5,6 @@
  *
  *  PayPal listener
  */
-$configuration = new Configuration('donate');
-
 $raw_post_data = file_get_contents('php://input');
 $raw_post_array = explode('&', $raw_post_data);
 $myPost = [];
@@ -73,8 +71,8 @@ if (strcmp($res, "VERIFIED") == 0) {
 	$user_id = $_POST['custom'];
     $currency_symbol = '$';
 
-    $paypal_email = DB::getInstance()->get('donate_settings', ['name', '=', 'paypal_email'])->results();
-    if ($paypal_email[0]->value == $receiver_email) {
+    $paypal_email = Util::getSetting('paypal_email', '', 'Donate');
+    if ($paypal_email == $receiver_email) {
 
         switch($payment_status) {
             case 'Completed';
@@ -105,7 +103,8 @@ if (strcmp($res, "VERIFIED") == 0) {
                 $target_user = new User($user_id);
                 if ($user_id != 0 && $target_user->exists()) {
                     // Give reward group to user
-                    $reward_group = $configuration->get('donate', 'reward_group');
+                    $reward_group = Util::getSetting('reward_group', '0', 'Donate');
+
                     if ($reward_group != 0) {
                         $target_user->addGroup($reward_group);
                     }
@@ -121,7 +120,7 @@ if (strcmp($res, "VERIFIED") == 0) {
                             'currency' => $payment_currency
                         ]),
                         'avatar_url' => $target_user->getAvatar(128, true),
-                        'url' => Util::getSelfURL() . ltrim(URL::build('/profile/' . $target_user->getDisplayname()), '/')
+                        'url' => URL::getSelfURL() . ltrim(URL::build('/profile/' . $target_user->getDisplayname()), '/')
                     ]);
                 } else {
                     // Trigger new donation event

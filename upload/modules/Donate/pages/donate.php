@@ -14,11 +14,10 @@ define('PAGE', 'donate');
 $page_title = 'Donate';
 require_once(ROOT_PATH . '/core/templates/frontend_init.php');
 $timeago = new TimeAgo(TIMEZONE);
-$configuration = new Configuration('donate');
 
 if (isset($_GET['do'])) {
     if ($_GET['do'] == 'success') {
-        $success_content = $configuration->get('success_content');
+        $success_content = Util::getSetting('success_content', '', 'Donate');
 
         $success = Output::getPurified(Output::getDecoded($success_content));
     }
@@ -52,10 +51,10 @@ foreach ($latest_donations as $donation) {
     }
 }
 
-$currency = $configuration->get('currency');
-$min_amount = $configuration->get('min_amount');
+$currency = Util::getSetting('currency', 'USD', 'Donate');
+$min_amount = Util::getSetting('min_amount', '5.00', 'Donate');
 
-$content = $configuration->get('content');
+$content = Util::getSetting('content', '', 'Donate');
 if (!empty($content)) {
     $smarty->assign('CONTENT', Output::getPurified(Output::getDecoded($content)));
 }

@@ -29,7 +29,7 @@ class Donate {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_URL, 'https://api.partydragen.com/stats.php?uid=' . $uid . '&version=' . $current_version . '&module=Donate&module_version='.$module->getVersion() . '&domain='. Util::getSelfURL());
+        curl_setopt($ch, CURLOPT_URL, 'https://api.partydragen.com/stats.php?uid=' . $uid . '&version=' . $current_version . '&module=Donate&module_version='.$module->getVersion() . '&domain='. URL::getSelfURL());
 
         $update_check = curl_exec($ch);
         curl_close($ch);

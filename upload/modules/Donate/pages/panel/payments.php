@@ -29,7 +29,7 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
             if ($payment->user_id != 0 && $payment_user->exists()) {
                 $username = $payment_user->getDisplayname(true);
                 $avatar = $payment_user->getAvatar();
-                $style = $payment_user->getGroupClass();
+                $style = $payment_user->getGroupStyle();
             } else {
                 $username = $donate_language->get('general', 'anonymous');
                 $avatar = '';
@@ -126,7 +126,7 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
     if ($payment->user_id != 0 && $payment_user->exists()) {
         $username = $payment_user->getDisplayname(true);
         $avatar = $payment_user->getAvatar();
-        $style = $payment_user->getGroupClass();
+        $style = $payment_user->getGroupStyle();
     } else {
         $username = $donate_language->get('general', 'anonymous');
         $avatar = '';
@@ -192,7 +192,7 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
     if (count($payments)) {
         $username = $target_user->getDisplayname(true);
         $avatar = $target_user->getAvatar();
-        $style = $target_user->getGroupClass();
+        $style = $target_user->getGroupStyle();
 
         $template_payments = [];
         foreach ($payments as $payment) {

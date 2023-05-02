@@ -17,7 +17,6 @@ define('PARENT_PAGE', 'donate_settings');
 define('PANEL_PAGE', 'donate_settings');
 $page_title = $language->get('admin', 'general_settings');
 require_once(ROOT_PATH . '/core/templates/backend_init.php');
-$configuration = new Configuration('donate');
 
 // Deal with input
 if (Input::exists()) {
@@ -32,25 +31,13 @@ if (Input::exists()) {
 		]);
 
 		if ($validation->passed()) {
-			// Update paypal email
-			$paypal_email_id = DB::getInstance()->get('donate_settings', ['name', '=', 'paypal_email'])->results();
-            if (count($paypal_email_id)) {
-                DB::getInstance()->update('donate_settings', $paypal_email_id[0]->id, [
-                    'value' => Input::get('paypal_email'),
-                ]);
-            } else {
-                DB::getInstance()->insert('donate_settings', [
-                    'name' => 'paypal_email',
-                    'value' => Input::get('paypal_email'),
-                ]);
-            }
+            Util::setSetting('paypal_email', Input::get('paypal_email'), 'Donate');
+            Util::setSetting('currency', Input::get('currency'), 'Donate');
+            Util::setSetting('min_amount', Input::get('min_amount'), 'Donate');
+            Util::setSetting('reward_group', Input::get('reward_group'), 'Donate');
 
-            $configuration->set('currency', Input::get('currency'));
-            $configuration->set('min_amount', Input::get('min_amount'));
-            $configuration->set('reward_group', Input::get('reward_group'));
-
-            $configuration->set('content', Input::get('content'));
-            $configuration->set('success_content', Input::get('success_content'));
+            Util::setSetting('content', Input::get('content'), 'Donate');
+            Util::setSetting('success_content', Input::get('success_content'), 'Donate');
 
 			// Get link location
 			if (isset($_POST['link_location'])) {
@@ -93,14 +80,12 @@ $currency_list = ['USD', 'EUR', 'GBP', 'NOK', 'SEK', 'PLN', 'DKK', 'CAD', 'BRL',
 Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
 
 // Retrieve PayPal Email
-$paypal_email = DB::getInstance()->get('donate_settings', ['name', '=', 'paypal_email'])->results();
-$paypal_email = $paypal_email[0]->value;
-
-$currency = $configuration->get('currency');
-$min_amount = $configuration->get('min_amount');
-$reward_group = $configuration->get('reward_group');
-$content = $configuration->get('content');
-$success_content = $configuration->get('success_content');
+$paypal_email = Util::getSetting('paypal_email', '', 'Donate');
+$currency = Util::getSetting('currency', 'USD', 'Donate');
+$min_amount = Util::getSetting('min_amount', '5.00', 'Donate');
+$reward_group = Util::getSetting('reward_group', '0', 'Donate');
+$content = Util::getSetting('content', null, 'Donate');
+$success_content = Util::getSetting('success_content', null, 'Donate');
 
 // Retrieve Link Location from cache
 $cache->setCache('nav_location');
