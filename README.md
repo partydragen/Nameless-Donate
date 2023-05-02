@@ -2,7 +2,7 @@
 With this module people can donate to you using PayPal
 
 ## Requirements
-- NamelessMC version 2 pre-release 13
+- NamelessMC version 2.1.0
 
 ## Installation
 - Upload the contents of the **upload** directory straight into your NamelessMC installation's directory
