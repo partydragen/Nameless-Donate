@@ -6,7 +6,7 @@
  *  Process donation
  */
 
-$paypal_email = Util::getSetting('paypal_email', '', 'Donate');
+$paypal_email = Settings::get('paypal_email', '', 'Donate');
 if (empty($paypal_email)) {
     Session::flash('donate_error', $donate_language->get('general', 'donate_error'));
     Redirect::to(URL::build('/donate/'));
@@ -19,8 +19,8 @@ if ($_POST['anonymous'] == 0 && $user->isLoggedIn()) {
 	$user_id = 0;
 }
 
-$currency = Util::getSetting('currency', 'USD', 'Donate');
-$min_amount = Util::getSetting('min_amount', '5.00', 'Donate');
+$currency = Settings::get('currency', 'USD', 'Donate');
+$min_amount = Settings::get('min_amount', '5.00', 'Donate');
 
 // Get amount
 if (!isset($_POST['amount']) || !is_numeric($_POST['amount']) || $_POST['amount'] < $min_amount) {

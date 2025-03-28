@@ -71,7 +71,7 @@ if (strcmp($res, "VERIFIED") == 0) {
 	$user_id = $_POST['custom'];
     $currency_symbol = '$';
 
-    $paypal_email = Util::getSetting('paypal_email', '', 'Donate');
+    $paypal_email = Settings::get('paypal_email', '', 'Donate');
     if ($paypal_email == $receiver_email) {
 
         switch($payment_status) {
@@ -103,7 +103,7 @@ if (strcmp($res, "VERIFIED") == 0) {
                 $target_user = new User($user_id);
                 if ($user_id != 0 && $target_user->exists()) {
                     // Give reward group to user
-                    $reward_group = Util::getSetting('reward_group', '0', 'Donate');
+                    $reward_group = Settings::get('reward_group', '0', 'Donate');
 
                     if ($reward_group != 0) {
                         $target_user->addGroup($reward_group);

@@ -17,7 +17,7 @@ $timeago = new TimeAgo(TIMEZONE);
 
 if (isset($_GET['do'])) {
     if ($_GET['do'] == 'success') {
-        $success_content = Util::getSetting('success_content', '', 'Donate');
+        $success_content = Settings::get('success_content', '', 'Donate');
 
         $success = Output::getPurified(Output::getDecoded($success_content));
     }
@@ -51,15 +51,15 @@ foreach ($latest_donations as $donation) {
     }
 }
 
-$currency = Util::getSetting('currency', 'USD', 'Donate');
-$min_amount = Util::getSetting('min_amount', '5.00', 'Donate');
+$currency = Settings::get('currency', 'USD', 'Donate');
+$min_amount = Settings::get('min_amount', '5.00', 'Donate');
 
-$content = Util::getSetting('content', '', 'Donate');
+$content = Settings::get('content', '', 'Donate');
 if (!empty($content)) {
-    $smarty->assign('CONTENT', Output::getPurified(Output::getDecoded($content)));
+    $template->getEngine()->addVariable('CONTENT', Output::getPurified(Output::getDecoded($content)));
 }
 
-$smarty->assign([
+$template->getEngine()->addVariables([
     'DONATE' => $donate_language->get('general', 'donate'),
     'AMOUNT' => $donate_language->get('general', 'amount'),
     'MIN_AMOUNT' => $min_amount,
@@ -81,13 +81,13 @@ if (Session::exists('donate_error'))
     $errors[] = Session::flash('donate_error');
 
 if (isset($success))
-	$smarty->assign([
+	$template->getEngine()->addVariables([
 		'SUCCESS' => $success,
 		'SUCCESS_TITLE' => $language->get('general', 'success')
 	]);
 
 if (isset($errors) && count($errors))
-	$smarty->assign([
+	$template->getEngine()->addVariables([
 		'ERRORS' => $errors,
 		'ERRORS_TITLE' => $language->get('general', 'error')
 	]);
@@ -101,11 +101,11 @@ $template->assets()->include([
 
 $template->onPageLoad();
 
-$smarty->assign('WIDGETS_LEFT', $widgets->getWidgets('left'));
-$smarty->assign('WIDGETS_RIGHT', $widgets->getWidgets('right'));
+$template->getEngine()->addVariable('WIDGETS_LEFT', $widgets->getWidgets('left'));
+$template->getEngine()->addVariable('WIDGETS_RIGHT', $widgets->getWidgets('right'));
 
 require(ROOT_PATH . '/core/templates/navbar.php');
 require(ROOT_PATH . '/core/templates/footer.php');
 	
 // Display template
-$template->displayTemplate('donate/donate.tpl', $smarty);
+$template->displayTemplate('donate/donate');

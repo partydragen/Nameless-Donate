@@ -31,13 +31,13 @@ if (Input::exists()) {
 		]);
 
 		if ($validation->passed()) {
-            Util::setSetting('paypal_email', Input::get('paypal_email'), 'Donate');
-            Util::setSetting('currency', Input::get('currency'), 'Donate');
-            Util::setSetting('min_amount', Input::get('min_amount'), 'Donate');
-            Util::setSetting('reward_group', Input::get('reward_group'), 'Donate');
+            Settings::set('paypal_email', Input::get('paypal_email'), 'Donate');
+            Settings::set('currency', Input::get('currency'), 'Donate');
+            Settings::set('min_amount', Input::get('min_amount'), 'Donate');
+            Settings::set('reward_group', Input::get('reward_group'), 'Donate');
 
-            Util::setSetting('content', Input::get('content'), 'Donate');
-            Util::setSetting('success_content', Input::get('success_content'), 'Donate');
+            Settings::set('content', Input::get('content'), 'Donate');
+            Settings::set('success_content', Input::get('success_content'), 'Donate');
 
 			// Get link location
 			if (isset($_POST['link_location'])) {
@@ -80,12 +80,12 @@ $currency_list = ['USD', 'EUR', 'GBP', 'NOK', 'SEK', 'PLN', 'DKK', 'CAD', 'BRL',
 Module::loadPage($user, $pages, $cache, $smarty, [$navigation, $cc_nav, $staffcp_nav], $widgets, $template);
 
 // Retrieve PayPal Email
-$paypal_email = Util::getSetting('paypal_email', '', 'Donate');
-$currency = Util::getSetting('currency', 'USD', 'Donate');
-$min_amount = Util::getSetting('min_amount', '5.00', 'Donate');
-$reward_group = Util::getSetting('reward_group', '0', 'Donate');
-$content = Util::getSetting('content', null, 'Donate');
-$success_content = Util::getSetting('success_content', null, 'Donate');
+$paypal_email = Settings::get('paypal_email', '', 'Donate');
+$currency = Settings::get('currency', 'USD', 'Donate');
+$min_amount = Settings::get('min_amount', '5.00', 'Donate');
+$reward_group = Settings::get('reward_group', '0', 'Donate');
+$content = Settings::get('content', null, 'Donate');
+$success_content = Settings::get('success_content', null, 'Donate');
 
 // Retrieve Link Location from cache
 $cache->setCache('nav_location');
@@ -108,18 +108,18 @@ if (Session::exists('donate_success'))
 	$success = Session::flash('donate_success');
 
 if (isset($success))
-	$smarty->assign([
+	$template->getEngine()->addVariables([
 		'SUCCESS' => $success,
 		'SUCCESS_TITLE' => $language->get('general', 'success')
 	]);
 
 if (isset($errors) && count($errors))
-	$smarty->assign([
+	$template->getEngine()->addVariables([
 		'ERRORS' => $errors,
 		'ERRORS_TITLE' => $language->get('general', 'error')
 	]);
 
-$smarty->assign([
+$template->getEngine()->addVariables([
 	'PARENT_PAGE' => PARENT_PAGE,
 	'DASHBOARD' => $language->get('admin', 'dashboard'),
 	'DONATE' => $donate_language->get('general', 'donate'),
@@ -165,4 +165,4 @@ $template->onPageLoad();
 require(ROOT_PATH . '/core/templates/panel_navbar.php');
 
 // Display template
-$template->displayTemplate('donate/settings.tpl', $smarty);
+$template->displayTemplate('donate/settings');

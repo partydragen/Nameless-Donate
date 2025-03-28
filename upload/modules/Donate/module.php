@@ -1,7 +1,7 @@
 <?php 
 /*
  *  Made by Partydragen
- *  NamelessMC version 2.0.0-pr13
+ *  NamelessMC version 2.2.0
  *
  *  License: MIT
  *
@@ -23,7 +23,7 @@ class Donate_Module extends Module {
         $name = 'Donate';
         $author = '<a href="https://partydragen.com" target="_blank" rel="nofollow noopener">Partydragen</a>';
         $module_version = '1.0.2';
-        $nameless_version = '2.1.0';
+        $nameless_version = '2.2.0';
 
         parent::__construct($this, $name, $author, $module_version, $nameless_version);
 
@@ -173,7 +173,7 @@ class Donate_Module extends Module {
 
                 $update_check = json_decode($update_check);
                 if (!isset($update_check->error) && !isset($update_check->no_update) && isset($update_check->new_version)) {  
-                    $smarty->assign([
+                    $template->getEngine()->addVariables([
                         'NEW_UPDATE' => (isset($update_check->urgent) && $update_check->urgent == 'true') ? $this->_donate_language->get('admin', 'new_urgent_update_available_x', ['module' => $this->getName()]) : $this->_donate_language->get('admin', 'new_update_available_x', ['module' => $this->getName()]),
                         'NEW_UPDATE_URGENT' => (isset($update_check->urgent) && $update_check->urgent == 'true'),
                         'CURRENT_VERSION' => $this->_donate_language->get('admin', 'current_version_x', ['version' => Output::getClean($this->getVersion())]),
@@ -201,12 +201,12 @@ class Donate_Module extends Module {
         }
 
         if (!$this->_db->get('settings', ['module', '=', 'Donate'])->count()) {
-            Util::setSetting('paypal_email', '', 'Donate');
-            Util::setSetting('currency', 'USD', 'Donate');
-            Util::setSetting('min_amount', '5.00', 'Donate');
-            Util::setSetting('content', 'Huge thanks to everyone who wish to donate', 'Donate');
-            Util::setSetting('success_content', 'We appreciate and thank you for your donation. It might take a while before it shows up in the donation list', 'Donate');
-            Util::setSetting('reward_group', '0', 'Donate');
+            Settings::set('paypal_email', '', 'Donate');
+            Settings::set('currency', 'USD', 'Donate');
+            Settings::set('min_amount', '5.00', 'Donate');
+            Settings::set('content', 'Huge thanks to everyone who wish to donate', 'Donate');
+            Settings::set('success_content', 'We appreciate and thank you for your donation. It might take a while before it shows up in the donation list', 'Donate');
+            Settings::set('reward_group', '0', 'Donate');
         }
     }
 
@@ -219,7 +219,7 @@ class Donate_Module extends Module {
                     // Convert donate settings to NamelessMC settings system
                     $settings = $this->_db->query('SELECT * FROM nl2_donate_settings')->results();
                     foreach ($settings as $setting) {
-                        Util::setSetting($setting->name, $setting->value, 'Donate');
+                        Settings::set($setting->name, $setting->value, 'Donate');
                     }
 
                     $this->_db->query('DROP TABLE nl2_donate_settings');

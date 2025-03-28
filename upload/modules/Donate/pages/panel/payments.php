@@ -70,7 +70,7 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
             ];
         }
 
-        $smarty->assign([
+        $template->getEngine()->addVariables([
             'USER' => $donate_language->get('admin', 'user'),
             'AMOUNT' => $donate_language->get('general', 'amount'),
             'STATUS' => $donate_language->get('admin', 'status'),
@@ -107,9 +107,9 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
         }
 
     } else
-        $smarty->assign('NO_PAYMENTS', $donate_language->get('admin', 'no_payments'));
+        $template->getEngine()->addVariable('NO_PAYMENTS', $donate_language->get('admin', 'no_payments'));
 
-    $template_file = 'donate/payments.tpl';
+    $template_file = 'donate/payments';
 } else if (isset($_GET['payment'])) {
     // View payment
     if (!isset($_GET['payment']) || !is_numeric($_GET['payment'])) {
@@ -151,7 +151,7 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
         break;
     }
 
-    $smarty->assign([
+    $template->getEngine()->addVariables([
         'VIEWING_PAYMENT' => $donate_language->get('admin', 'viewing_payment', ['transaction' => Output::getClean($payment->transaction_id)]),
         'BACK' => $language->get('general', 'back'),
         'BACK_LINK' => URL::build('/panel/donate/payments'),
@@ -176,7 +176,7 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
         'DATE_VALUE' => date(DATE_FORMAT, $payment->created)
     ]);
 
-    $template_file = 'donate/payments_view.tpl';
+    $template_file = 'donate/payments_view';
 } else if (isset($_GET['user'])) {
     // View user
     if (!isset($_GET['user']) || !is_numeric($_GET['user'])) {
@@ -208,7 +208,7 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
             ];
         }
 
-        $smarty->assign([
+        $template->getEngine()->addVariables([
             'USER' => $donate_language->get('admin', 'user'),
             'AMOUNT' => $donate_language->get('admin', 'amount'),
             'DATE' => $donate_language->get('admin', 'date'),
@@ -244,15 +244,15 @@ if (!isset($_GET['payment']) && !isset($_GET['user'])) {
         }
 
     } else
-        $smarty->assign('NO_PAYMENTS', $donate_language->get('admin', 'no_payments_for_user'));
+        $template->getEngine()->addVariable('NO_PAYMENTS', $donate_language->get('admin', 'no_payments_for_user'));
 
-    $smarty->assign([
+    $template->getEngine()->addVariables([
         'VIEWING_PAYMENTS_FOR_USER' => $donate_language->get('admin', 'viewing_payments_for_user_x', ['user' => $target_user->getDisplayname(true)]),
         'BACK' => $language->get('general', 'back'),
         'BACK_LINK' => URL::build('/panel/donate/payments')
     ]);
 
-    $template_file = 'donate/payments_user.tpl';
+    $template_file = 'donate/payments_user';
 }
 
 // Load modules + template
@@ -262,18 +262,18 @@ if (Session::exists('donate_success'))
     $success = Session::flash('donate_success');
 
 if (isset($success))
-    $smarty->assign([
+    $template->getEngine()->addVariables([
         'SUCCESS' => $success,
         'SUCCESS_TITLE' => $language->get('general', 'success')
     ]);
 
 if (isset($errors) && count($errors))
-    $smarty->assign([
+    $template->getEngine()->addVariables([
         'ERRORS' => $errors,
         'ERRORS_TITLE' => $language->get('general', 'error')
     ]);
 
-$smarty->assign([
+$template->getEngine()->addVariables([
     'PARENT_PAGE' => PARENT_PAGE,
     'DASHBOARD' => $language->get('admin', 'dashboard'),
     'DONATE' => $donate_language->get('general', 'donate'),
@@ -288,4 +288,4 @@ $template->onPageLoad();
 require(ROOT_PATH . '/core/templates/panel_navbar.php');
 
 // Display template
-$template->displayTemplate($template_file, $smarty);
+$template->displayTemplate($template_file);
