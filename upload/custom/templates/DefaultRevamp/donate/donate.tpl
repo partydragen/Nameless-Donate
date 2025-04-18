@@ -6,7 +6,7 @@
   <div class="ui ten wide tablet twelve wide computer column">
     <div class="ui segment">
       <h2 class="ui header">{$DONATE}</h2>
-      <hr>
+      <div class="ui divider"></div>
       
       {if isset($SUCCESS)}
         <div class="ui success icon message">
@@ -61,7 +61,7 @@
   <div class="ui six wide tablet four wide computer column">
     <div class="ui segment">
       <h2 class="ui header" style="display:inline;">{$LATEST_DONATIONS}</h2>
-      <hr>
+      <div class="ui divider"></div>
       <div class="description">
       {foreach from=$LATEST_DONATIONS_LIST item=donator}
         <div class="ui relaxed list">
